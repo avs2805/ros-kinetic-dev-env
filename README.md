@@ -5,4 +5,3 @@
 |  CMake  |  3.19.5 |
 |  Ubuntu |  16.04  |
 |   ROS   | Kinetic |
-|         |         |
