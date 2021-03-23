@@ -1,4 +1,4 @@
-| Package | Version |
+| **Package** | **Version** |
 |:-------:|:-------:|
 |   gcc   |    9    |
 |   g++   |    9    |
