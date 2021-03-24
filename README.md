@@ -8,8 +8,9 @@
 |   ROS   | Kinetic |
 
 ## How to Use
-- Clone this repository in a directory (preferrably miso_ws to be easily identifiable ROS workspace )
-- Create a directory called src inside the repo. (.gitignore has this added so it wont start tracking src!)
+- Download Dockerfile,Makefile,ros_entrypoint.sh and .gitignore from this repository in a directory (preferrably miso_ws to be easily identifiable ROS workspace)
+- Create a directory called src inside the workspace (miso_ws/src). (.gitignore has this added so it wont start tracking src!)
+- cd src
 - Clone miso-robot-driver-stack in src
 - run `vcstool import < miso-robot-driver-stack/dependencies.rosinstall`
 - run `make build`
