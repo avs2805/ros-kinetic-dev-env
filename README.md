@@ -8,7 +8,8 @@
 |   ROS   | Kinetic |
 
 ## How to Use
-- Create a directory called src
+- Clone this repository
+- Create a directory called src inside the repo. (.gitignore has this added so it wont start tracking src!)
 - Clone miso-robot-driver-stack in src
 - run `vcstool import < miso-robot-driver-stack/dependencies.rosinstall`
 - run `make build`
