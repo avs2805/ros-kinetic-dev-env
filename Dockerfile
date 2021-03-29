@@ -65,6 +65,9 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test \
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
   sudo update-alternatives --config gcc
 
+# RUN select gcc-9
+
+# RUN apt install software-properties-common
 # create catkin directories
 ENV CATKIN_WS=/root/catkin_ws
 RUN mkdir -p ${CATKIN_WS}
@@ -75,9 +78,9 @@ COPY . .
 RUN rosdep init
 RUN rosdep update
 
-RUN apt install -y ros-kinetic-tf2-geometry-msgs && apt install -y ros-kinetic-realtime-tools
-
 WORKDIR ${CATKIN_WS}
+
+RUN apt install -y ros-kinetic-tf2-geometry-msgs && apt install -y ros-kinetic-realtime-tools
 
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash
 # Install dependencies
