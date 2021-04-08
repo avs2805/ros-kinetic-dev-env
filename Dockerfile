@@ -2,6 +2,7 @@ FROM ros:kinetic-ros-core-xenial
 SHELL ["/bin/bash","-c"] 
 
 ENV ROS_DISTRO kinetic
+ENV LIBMODBUS libmodbus_3.1.6-1_amd64.deb
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -65,9 +66,6 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test \
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
   sudo update-alternatives --config gcc
 
-# RUN select gcc-9
-
-# RUN apt install software-properties-common
 # create catkin directories
 ENV CATKIN_WS=/root/catkin_ws
 RUN mkdir -p ${CATKIN_WS}
@@ -83,16 +81,19 @@ WORKDIR ${CATKIN_WS}
 RUN apt install -y ros-kinetic-tf2-geometry-msgs && apt install -y ros-kinetic-realtime-tools
 
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash
-# Install dependencies
-# RUN rosdep update 
-RUN rosdep install --from-paths ${CATKIN_WS}/src/ --ignore-src -r -y 
-#  --rosdistro ${ROS_DISTRO}
 
-RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
-  # Build catkin workspace
-  && catkin_make -j8
+# Install dependencies
+RUN rosdep install --from-paths ${CATKIN_WS}/src/ --ignore-src -r -y 
+
+# install updated libmodbus
+COPY ./${LIBMODBUS}} /
+RUN dpkg -i /${LIBMODBUS}
+
+# Build catkin workspace
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash
+RUN catkin_make -j8
 RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
-COPY ./ros-entrypoint.sh /
-RUN chmod +x /ros-entrypoint.sh
-ENTRYPOINT ["/ros-entrypoint.sh"]
+# COPY ./ros-entrypoint.sh /
+# RUN chmod +x /ros-entrypoint.sh
+# ENTRYPOINT ["/ros-entrypoint.sh"]
