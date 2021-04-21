@@ -4,11 +4,7 @@ SHELL ["/bin/bash","-c"]
 ENV ROS_DISTRO kinetic
 ENV LIBMODBUS libmodbus_3.1.6-1_amd64.deb
 
-# install bootstrap tools
-RUN apt-get update && apt-get install --no-install-recommends -y \
-  build-essential \
-  python-rosdep \
-  && rm -rf /var/lib/apt/lists/*
+
 
 # Setup Locales
 RUN apt-get update && apt-get install -y locales
@@ -28,43 +24,49 @@ RUN echo $TZ > /etc/timezone && \
   dpkg-reconfigure -f noninteractive tzdata
 
 # Install basic dev and utility tools
-RUN apt-get update && apt-get install -y \
+RUN apt update && apt install -y \
   apt-utils \
-  git \
-  lsb-release \
-  build-essential \
-  stow \
-  nano \
-  tmux \
-  wget \
-  htop \
-  unzip \
+  software-properties-common \
   apt-transport-https \
   ca-certificates \
-  gnupg \
-  software-properties-common \
+  git \
+  lsb-release \
+  wget \
   && rm -rf /var/lib/apt/lists/*
-
-
-RUN apt-get dist-upgrade -y
 
 # Obtain a copy of our signing key:
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
   | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 
-# Add the repository to your sources list and update
+# Update CMake version
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main'
 RUN apt-get update
-
-# Install CMake
 RUN apt-get install -y cmake
 
-
+# Update to GCC 9
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test \
   && apt update \
   && apt install -y gcc-9 g++-9
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
   sudo update-alternatives --config gcc
+
+# install bootstrap tools
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  build-essential \
+  python-rosdep
+
+# Install basic dev and utility tools
+RUN apt update && apt install -y \
+  stow \
+  nano \
+  tmux \
+  htop \
+  unzip \
+  gnupg
+
+RUN apt-get dist-upgrade -y
+
+# RUN apt update && apt install -y  
 
 # create catkin directories
 ENV CATKIN_WS=/root/catkin_ws
@@ -86,7 +88,7 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash
 RUN rosdep install --from-paths ${CATKIN_WS}/src/ --ignore-src -r -y 
 
 # install updated libmodbus
-COPY ./${LIBMODBUS}} /
+COPY ./${LIBMODBUS} /
 RUN dpkg -i /${LIBMODBUS}
 
 # Build catkin workspace
