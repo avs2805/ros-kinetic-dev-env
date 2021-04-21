@@ -81,7 +81,7 @@ RUN rosdep update
 
 WORKDIR ${CATKIN_WS}
 
-RUN apt install -y ros-kinetic-tf2-geometry-msgs && apt install -y ros-kinetic-realtime-tools
+# RUN apt install -y ros-kinetic-tf2-geometry-msgs && apt install -y ros-kinetic-realtime-tools
 
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash
 
@@ -93,8 +93,9 @@ COPY ./${LIBMODBUS} /
 RUN dpkg -i /${LIBMODBUS}
 
 # Build catkin workspace
-RUN source /opt/ros/${ROS_DISTRO}/setup.bash
-RUN catkin_make -j8
+RUN /bin/bash -c '. /opt/ros/kinetic/setup.bash; cd ${CATKIN_WS}; catkin_make -j8'
+# RUN source /opt/ros/${ROS_DISTRO}/setup.bash
+# RUN catkin_make -j8
 RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # COPY ./ros-entrypoint.sh /
