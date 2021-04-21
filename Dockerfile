@@ -4,12 +4,9 @@ SHELL ["/bin/bash","-c"]
 ENV ROS_DISTRO kinetic
 ENV LIBMODBUS libmodbus_3.1.6-1_amd64.deb
 
-
-
 # Setup Locales
 RUN apt-get update && apt-get install -y locales
 ENV LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" LANGUAGE="en_US.UTF-8"
-
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
   locale-gen --purge $LANG && \
@@ -65,9 +62,7 @@ RUN apt update && apt install -y \
   gnupg \
   ros-kinetic-catkin 
 
-RUN apt-get dist-upgrade -y
-
-# RUN apt update && apt install -y  
+RUN apt-get dist-upgrade -y  
 
 # create catkin directories
 ENV CATKIN_WS=/root/catkin_ws
