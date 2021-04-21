@@ -62,7 +62,8 @@ RUN apt update && apt install -y \
   tmux \
   htop \
   unzip \
-  gnupg
+  gnupg \
+  ros-kinetic-catkin 
 
 RUN apt-get dist-upgrade -y
 
