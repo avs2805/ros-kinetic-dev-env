@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-VERSION := 0.1
+VERSION := 0.2
 CONTAINER := miso_ros_kinetic_$(VERSION)
 SOURCE_MOUNT:=/root/catkin_ws/
 
