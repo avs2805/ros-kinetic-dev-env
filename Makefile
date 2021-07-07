@@ -20,7 +20,7 @@ DISPLAY_FORWARDING_FLAGS := --env="DISPLAY" \
 
 DOCKER_RUN_BASE = docker run --rm -it\
 	--volume $(shell pwd):$(SOURCE_MOUNT) \
-	--volume /dev/input:/dev/input \
+	--volume /dev:/dev \
   --network host \
 	--privileged \
 	$(JOYSTICK_FLAGS) \
