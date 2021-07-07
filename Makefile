@@ -26,7 +26,6 @@ DOCKER_RUN_BASE = docker run --rm -it\
 	$(JOYSTICK_FLAGS) \
 	$(if $(FORWARD_X),$(DISPLAY_FORWARDING_FLAGS)) \
 	--volume /dev:/dev
-# /dev mounting for realsense and joystick
 
 ENTRY_COMMAND = /bin/bash
 
