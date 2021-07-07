@@ -58,11 +58,16 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN apt-get update && apt-get install -y \
     stow \
     nano \
-    tmux \
-    htop \
     unzip \
-    gnupg \
-    ros-kinetic-catkin 
+    ros-kinetic-catkin \
+    ros-kinetic-roslint \
+    ros-kinetic-uuid-msgs \
+    ros-kinetic-controller-manager \
+    ros-kinetic-joint-limits-interface \
+    ros-kinetic-actionlib \
+    ros-kinetic-control-msgs \
+    ros-kinetic-combined-robot-hw \
+    ros-kinetic-realtime-tools 
 
 RUN apt-get dist-upgrade -y
 
@@ -83,7 +88,7 @@ RUN mkdir build
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash
 
 # Install dependencies
-RUN rosdep install --from-paths ${CATKIN_WS}/src/ --ignore-src -r -y 
+RUN rosdep install --from-paths src --ignore-src -r -y 
 
 # install updated libmodbus
 COPY ./${LIBMODBUS} /
@@ -93,6 +98,8 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /us
     sudo update-alternatives --config gcc
 
 # Build catkin workspace
-RUN /bin/bash -c '. /opt/ros/kinetic/setup.bash; cd ${CATKIN_WS}; catkin_make -j8'
+RUN /bin/bash -c "source /opt/ros/kinetic/setup.bash && \
+    cd ${CATKIN_WS} && \
+    catkin_make -j8"
 
-RUN echo "source ${CATKIN_WS}/devel/setup.bash" >> ~/.bashrc
+# RUN echo "source ${CATKIN_WS}/devel/setup.bash" >> ~/.bashrc
