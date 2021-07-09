@@ -1,4 +1,4 @@
-FROM ros:kinetic-ros-core-xenial
+FROM ros:kinetic
 SHELL ["/bin/bash","-c"] 
 
 ENV ROS_DISTRO kinetic
@@ -24,6 +24,9 @@ RUN echo $TZ > /etc/timezone && \
 
 # Install basic dev and utility tools
 RUN apt-get update && apt-get install -y \
+    stow \
+    nano \
+    unzip \
     apt-utils \
     software-properties-common \
     apt-transport-https \
@@ -48,58 +51,60 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main'
 RUN apt-get update
 RUN apt-get install -y cmake
+# Clear apt-cache to reduce image size
+RUN rm -rf /var/lib/apt/lists/*
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     python-rosdep 
+# Clear apt-cache to reduce image size
+RUN rm -rf /var/lib/apt/lists/*
 
-# Install basic dev and utility tools
-RUN apt-get update && apt-get install -y \
-    stow \
-    nano \
-    unzip \
-    ros-kinetic-catkin \
-    ros-kinetic-roslint \
-    ros-kinetic-uuid-msgs \
-    ros-kinetic-controller-manager \
-    ros-kinetic-joint-limits-interface \
-    ros-kinetic-actionlib \
-    ros-kinetic-control-msgs \
-    ros-kinetic-combined-robot-hw \
-    ros-kinetic-realtime-tools 
-
-RUN apt-get dist-upgrade -y
-
-# create catkin directories
-RUN mkdir -p ${CATKIN_WS}
-WORKDIR ${CATKIN_WS}
-
-COPY . .
-
-RUN rosdep init
-RUN rosdep update
-
-WORKDIR ${CATKIN_WS}
-
-RUN mkdir devel 
-RUN mkdir build
-
-RUN source /opt/ros/${ROS_DISTRO}/setup.bash
-
-# Install dependencies
-RUN rosdep install --from-paths src --ignore-src -r -y 
+# Install ros packages
+# RUN apt-get update && apt-get install -y \
+#     ros-${ROS_DISTRO}-catkin \
+#     ros-${ROS_DISTRO}-roslint \
+#     ros-${ROS_DISTRO}-uuid-msgs \
+#     ros-${ROS_DISTRO}-controller-manager \
+#     ros-${ROS_DISTRO}-joint-limits-interface \
+#     ros-${ROS_DISTRO}-actionlib \
+#     ros-${ROS_DISTRO}-control-msgs \
+#     ros-${ROS_DISTRO}-combined-robot-hw \
+#     ros-${ROS_DISTRO}-realtime-tools \
+#     ros-${ROS_DISTRO}-joint-trajectory-controller \
+#     ros-${ROS_DISTRO}-xacro \
+#     ros-${ROS_DISTRO}-joint-state-controller
+# Clear apt-cache to reduce image size
+# RUN rm -rf /var/lib/apt/lists/*
 
 # install updated libmodbus
 COPY ./${LIBMODBUS} /
 RUN dpkg -i /${LIBMODBUS}
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 && \
-    sudo update-alternatives --config gcc
+# create catkin directories
+RUN mkdir -p ${CATKIN_WS}/src
+WORKDIR ${CATKIN_WS}
 
-# Build catkin workspace
-RUN /bin/bash -c "source /opt/ros/kinetic/setup.bash && \
-    cd ${CATKIN_WS} && \
-    catkin_make -j8"
+COPY . .
 
-# RUN echo "source ${CATKIN_WS}/devel/setup.bash" >> ~/.bashrc
+# RUN rosdep init
+# RUN rosdep update
+
+# Initialize local catkin workspace
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+    # Update apt-get because its cache is always cleared after installs to keep image size down
+    && apt-get update \
+    # Install dependencies
+    && cd ${CATKIN_WS} \
+    && rosdep install -r -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} \
+    # Build catkin workspace
+    && catkin_make -j8
+
+RUN echo "source /opt/ros/${ROS_DISTRO}}/setup.bash" >> ~/.bashrc
+
+# COPY ./ros_entrypoint.sh /
+# RUN chmod +x /ros_entrypoint.sh
+
+# ENTRYPOINT ["/ros_entrypoint.sh"]
+# CMD ["bash"]
