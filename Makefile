@@ -1,11 +1,9 @@
 .DEFAULT_GOAL := help
 
-VERSION := 0.5
+VERSION := 0.6
 CONTAINER := miso_ros_kinetic_$(VERSION)
 SOURCE_MOUNT:=/root/catkin_ws/
 
-JOYSTICK_DEVICE := /dev/input/js0
-JOYSTICK_FLAGS := --device $(JOYSTICK_DEVICE):$(JOYSTICK_DEVICE)
 
 USE_GPU := false
 GPU_FLAGS := --gpus=all
@@ -19,11 +17,11 @@ DISPLAY_FORWARDING_FLAGS := --env="DISPLAY" \
 	--volume="/tmp:/tmp:rw"
 
 DOCKER_RUN_BASE = docker run --rm -it\
+	-e "TERM=xterm-256color"\
 	--volume $(shell pwd):$(SOURCE_MOUNT) \
 	--volume /dev:/dev \
   --network host \
 	--privileged \
-	$(JOYSTICK_FLAGS) \
 	$(if $(FORWARD_X),$(DISPLAY_FORWARDING_FLAGS)) \
 	--volume /dev:/dev
 
@@ -64,4 +62,5 @@ up-display-gpu: ## Launch the container and forward the X display with GPU suppo
 .PHONY: build
 build: ## Build the container image
 	@echo "Starting Docker build with the following command"
-	@DOCKER_BUILDKIT=1 docker build -t $(CONTAINER) .
+	# @DOCKER_BUILDKIT=1 docker build -t $(CONTAINER) .
+	@docker build -t $(CONTAINER) .
